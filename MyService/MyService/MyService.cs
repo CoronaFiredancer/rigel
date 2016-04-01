@@ -40,19 +40,31 @@ namespace MyService
 		[DllImport("advapi32.dll", SetLastError = true)]
 		private static extern bool SetServiceStatus(IntPtr handle, ref ServiceStatus serviceStatus);
 
-		public MyService()
+		public MyService(string[] args)
 		{
 			InitializeComponent();
 
-			eventLog1 = new EventLog();
+			var eventSourceName = "MySource";
+			var logName = "MyNewLog";
 
-			if (!EventLog.SourceExists("MySource"))
+			if (args.Length > 0)
 			{
-				EventLog.CreateEventSource("MySource", "MyNewLog");
+				eventSourceName = args[0];
+			}
+			if (args.Length > 1)
+			{
+				logName = args[1];
 			}
 
-			eventLog1.Source = "MySource";
-			eventLog1.Log = "MyNewLog";
+			eventLog1 = new EventLog();
+
+			if (!EventLog.SourceExists(eventSourceName))
+			{
+				EventLog.CreateEventSource(eventSourceName, logName);
+			}
+
+			eventLog1.Source = eventSourceName;
+			eventLog1.Log = logName;
 		}
 
 		protected override void OnStart(string[] args)
